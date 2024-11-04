@@ -30,10 +30,25 @@ public class SocketHandler {
         return username;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-        activeHandlers.add(this);
-    }
+    public void setUsername(String newUsername) {
+		String oldUsername = this.username;
+		this.username = newUsername;
+	
+		// Update the active handlers map
+		activeHandlers.remove(this);
+		activeHandlers.add(this);
+	
+		// Notify all rooms about the username change
+		activeHandlers.chatRooms.forEach((roomName, members) -> {
+			if (members.contains(this)) {
+				for (SocketHandler member : members) {
+					if (member != this) {
+						member.messages.offer(oldUsername + " has changed their name to " + newUsername);
+					}
+				}
+			}
+		});
+	}
 
     class OutputHandler implements Runnable {
         public void run() {

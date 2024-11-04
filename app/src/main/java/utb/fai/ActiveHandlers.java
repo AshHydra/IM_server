@@ -23,12 +23,14 @@ public class ActiveHandlers {
     synchronized void sendPrivateMessage(String recipientName, String message, SocketHandler sender) {
         SocketHandler recipient = activeHandlersMap.get(recipientName);
         if (recipient != null) {
-            recipient.messages.offer("[Private from " + sender.getUsername() + "] >> " + message);
-            sender.messages.offer("[Private to " + recipientName + "] >> " + message);
+            String formattedMessage = "[" + sender.getUsername() + "] >> " + message;
+            recipient.messages.offer(formattedMessage);
+            sender.messages.offer("Sent to [" + recipientName + "] >> " + message);
         } else {
             sender.messages.offer("User " + recipientName + " not found.");
         }
     }
+    
 
     synchronized void joinRoom(String roomName, SocketHandler handler) {
         chatRooms.computeIfAbsent(roomName, k -> ConcurrentHashMap.newKeySet()).add(handler);
